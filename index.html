@@ -1036,6 +1036,32 @@
                 return;
             }
             
+            // Toggle translate mode on/off
+            isTranslateEnabled = !isTranslateEnabled;
+            
+            if (isTranslateEnabled) {
+                // Enable auto-translate mode
+                translateBtn.classList.add('translate-btn-active');
+                translateBtn.innerHTML = '<i class="fas fa-check"></i> Đang dịch tự động';
+                
+                // Translate current subtitle immediately
+                translateCurrentSubtitle();
+            } else {
+                // Disable auto-translate mode
+                translateBtn.classList.remove('translate-btn-active');
+                translateBtn.innerHTML = '<i class="fas fa-language"></i> Dịch Việt';
+                
+                // Remove existing translation when disabled
+                document.querySelectorAll('.translation-text').forEach(el => el.remove());
+            }
+        }
+        
+        // Translate current subtitle
+        function translateCurrentSubtitle() {
+            if (currentSubtitleIndex === -1 || currentSubtitleIndex >= subtitles.length) {
+                return;
+            }
+            
             const subtitleIndex = currentSubtitleIndex;
             const englishText = subtitles[subtitleIndex].text;
             
@@ -1066,7 +1092,11 @@
                     showTranslation(subtitleIndex, 'Có lỗi xảy ra khi dịch. Vui lòng thử lại.');
                 })
                 .finally(() => {
-                    translateBtn.innerHTML = '<i class="fas fa-language"></i> Dịch Việt';
+                    if (isTranslateEnabled) {
+                        translateBtn.innerHTML = '<i class="fas fa-check"></i> Đang dịch tự động';
+                    } else {
+                        translateBtn.innerHTML = '<i class="fas fa-language"></i> Dịch Việt';
+                    }
                     translateBtn.disabled = false;
                 });
         }
@@ -1176,6 +1206,14 @@
             clearCustomLoop();
             updateRepeatStatus();
             
+            // Disable translate mode when repeat loop stops manually
+            if (isTranslateEnabled) {
+                isTranslateEnabled = false;
+                translateBtn.classList.remove('translate-btn-active');
+                translateBtn.innerHTML = '<i class="fas fa-language"></i> Dịch Việt';
+                document.querySelectorAll('.translation-text').forEach(el => el.remove());
+            }
+            
             toggleRepeatButtons(true);
         }
 
@@ -1190,7 +1228,7 @@
                             isRepeatLooping = false;
                             repeatLoopButton.classList.remove('repeat-loop-active');
                             repeatLoopSettings.classList.add('hidden');
-                            stopRepeatLoop();
+                            stopRepeatLoopOnComplete();
                         }
                     }, 2000);
                 }
@@ -1240,6 +1278,27 @@
                     }
                 }, 100);
             }
+        }
+        
+        // Stop repeat loop when all sentences are done
+        function stopRepeatLoopOnComplete() {
+            isRepeatLoopRunning = false;
+            repeatLoopTransitionInProgress = false;
+            currentRepeatCount = 0;
+            repeatCurrentSubtitleIndex = -1;
+            isLooping = false;
+            clearCustomLoop();
+            updateRepeatStatus();
+            
+            // Disable translate mode when repeat loop stops
+            if (isTranslateEnabled) {
+                isTranslateEnabled = false;
+                translateBtn.classList.remove('translate-btn-active');
+                translateBtn.innerHTML = '<i class="fas fa-language"></i> Dịch Việt';
+                document.querySelectorAll('.translation-text').forEach(el => el.remove());
+            }
+            
+            toggleRepeatButtons(true);
         }
 
         // Handle audio metadata loaded
@@ -1646,6 +1705,11 @@
                             });
                             lastScrollTime = now;
                             lastAutoScrolledIndex = foundIndex;
+                        }
+                        
+                        // Auto-translate when subtitle changes if translate mode is enabled
+                        if (isTranslateEnabled && isRepeatLooping && isRepeatLoopRunning) {
+                            translateCurrentSubtitle();
                         }
                         
                         if (isAutoLooping && isPlaying && !isSeekingManually) {

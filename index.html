@@ -283,6 +283,34 @@
             box-shadow: 0 2px 4px rgba(245, 158, 11, 0.4) !important;
         }
 
+        .translate-btn-active {
+            background-color: #10b981 !important;
+            color: white !important;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.4) !important;
+        }
+
+        .translation-text {
+            background-color: #ecfdf5;
+            border-left: 3px solid #10b981;
+            padding: 8px 12px;
+            margin-top: 8px;
+            border-radius: 6px;
+            font-style: italic;
+            color: #065f46;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .hide-words-active {
             background-color: #ec4899 !important;
             color: white !important;
@@ -592,7 +620,19 @@
                                 <button id="stop-repeat-loop" class="custom-btn btn-red text-sm btn-hidden">
                                     <i class="fas fa-stop"></i> Dừng
                                 </button>
+                                
+                                <button id="translate-btn" class="custom-btn btn-gray text-sm" disabled>
+                                    <i class="fas fa-language"></i> Dịch Việt
+                                </button>
                             </div>
+                        </div>
+                        
+                        <!-- Translation Settings Info -->
+                        <div id="translate-info" class="bg-green-50 p-3 rounded-lg mb-4 hidden">
+                            <p class="text-xs text-green-700">
+                                <i class="fas fa-info-circle"></i> 
+                                Tính năng dịch chỉ hoạt động khi đang lặp câu với số lần. Nhấn nút "Dịch Việt" để xem bản dịch tiếng Việt của câu hiện tại.
+                            </p>
                         </div>
                         
                         <div class="bg-blue-50 p-4 rounded-lg mb-4">
@@ -687,6 +727,8 @@
         const gdriveTranscriptBtn = document.getElementById('gdrive-transcript-btn');
         const hideWordsBtn = document.getElementById('hide-words-btn');
         const hideWordsSettings = document.getElementById('hide-words-settings');
+        const translateBtn = document.getElementById('translate-btn');
+        const translateInfo = document.getElementById('translate-info');
 
         // State variables
         let subtitles = [];
@@ -729,6 +771,10 @@
         let isHideWordsActive = false;
         let hidePercentage = 50;
         let hiddenWordIndices = [];
+        
+        // Translation feature variables
+        let isTranslateEnabled = false;
+        let translationsCache = {};
 
         // Google Drive API configuration
         const CLIENT_ID = '1081856756337-2dr8qvbaqod0q12s17ojqdnecjtlld39.apps.googleusercontent.com';
@@ -898,6 +944,7 @@
             repeatCountInput.addEventListener('change', handleRepeatCountChange);
             setLoopButton.addEventListener('click', setCustomLoop);
             clearLoopButton.addEventListener('click', clearCustomLoop);
+            translateBtn.addEventListener('click', handleTranslateClick);
             audioPlayer.addEventListener('timeupdate', handleTimeUpdate);
             audioPlayer.addEventListener('play', handleAudioPlay);
             audioPlayer.addEventListener('pause', handleAudioPause);
@@ -982,6 +1029,71 @@
                 }
             }
         }
+        
+        // Handle translate button click
+        function handleTranslateClick() {
+            if (!isRepeatLooping || !isRepeatLoopRunning || currentSubtitleIndex === -1) {
+                return;
+            }
+            
+            const subtitleIndex = currentSubtitleIndex;
+            const englishText = subtitles[subtitleIndex].text;
+            
+            // Check if translation is already cached
+            if (translationsCache[englishText]) {
+                showTranslation(subtitleIndex, translationsCache[englishText]);
+                return;
+            }
+            
+            // Show loading state
+            translateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang dịch...';
+            translateBtn.disabled = true;
+            
+            // Use MyMemory Translation API (free, no API key required for small usage)
+            fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(englishText)}&langpair=en|vi`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.responseData && data.responseData.translatedText) {
+                        const vietnameseTranslation = data.responseData.translatedText;
+                        translationsCache[englishText] = vietnameseTranslation;
+                        showTranslation(subtitleIndex, vietnameseTranslation);
+                    } else {
+                        showTranslation(subtitleIndex, 'Không thể dịch câu này. Vui lòng thử lại.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Translation error:', error);
+                    showTranslation(subtitleIndex, 'Có lỗi xảy ra khi dịch. Vui lòng thử lại.');
+                })
+                .finally(() => {
+                    translateBtn.innerHTML = '<i class="fas fa-language"></i> Dịch Việt';
+                    translateBtn.disabled = false;
+                });
+        }
+        
+        // Show translation in the subtitle
+        function showTranslation(subtitleIndex, translationText) {
+            // Remove existing translation from any subtitle
+            document.querySelectorAll('.translation-text').forEach(el => el.remove());
+            
+            // Add translation to the current highlighted subtitle
+            const subtitleElement = document.getElementById(`subtitle-${subtitleIndex}`);
+            if (subtitleElement) {
+                const translationDiv = document.createElement('div');
+                translationDiv.className = 'translation-text';
+                translationDiv.textContent = translationText;
+                
+                const subtitleTextDiv = subtitleElement.querySelector('.subtitle-text');
+                if (subtitleTextDiv) {
+                    subtitleTextDiv.parentNode.insertBefore(translationDiv, subtitleTextDiv.nextSibling);
+                }
+                
+                // Scroll to make sure translation is visible
+                setTimeout(() => {
+                    translationDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
+        }
 
         // Handle repeat loop mode toggle
         function handleRepeatLoopChange() {
@@ -990,6 +1102,12 @@
             if (isRepeatLooping) {
                 repeatLoopButton.classList.add('repeat-loop-active');
                 repeatLoopSettings.classList.remove('hidden');
+                translateInfo.classList.remove('hidden');
+                
+                // Enable translate button when repeat loop is active
+                translateBtn.disabled = false;
+                translateBtn.classList.remove('btn-gray');
+                translateBtn.classList.add('btn-blue');
                 
                 if (isAutoLooping) {
                     isAutoLooping = false;
@@ -1004,6 +1122,13 @@
             } else {
                 repeatLoopButton.classList.remove('repeat-loop-active');
                 repeatLoopSettings.classList.add('hidden');
+                translateInfo.classList.add('hidden');
+                
+                // Disable translate button when repeat loop is inactive
+                translateBtn.disabled = true;
+                translateBtn.classList.remove('btn-blue', 'translate-btn-active');
+                translateBtn.classList.add('btn-gray');
+                
                 stopRepeatLoop();
             }
         }
@@ -1499,6 +1624,11 @@
                 const previousElement = document.querySelector('.subtitle-item.highlight');
                 if (previousElement) {
                     previousElement.classList.remove('highlight');
+                    // Remove translation when subtitle changes
+                    const prevTranslation = previousElement.querySelector('.translation-text');
+                    if (prevTranslation) {
+                        prevTranslation.remove();
+                    }
                 }
                 
                 currentSubtitleIndex = foundIndex;

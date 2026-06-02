@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Luyện Tiếng Anh</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .highlight {
+            background-color: #ffeaa7;
+            border-radius: 3px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .transcript-container {
+            max-height: 600px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .time-display {
+            font-size: 13px;
+            font-weight: 500;
+            color: #5a67d8 !important;
+        }
+        
+        .subtitle-text {
+            padding: 4px 6px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+            background-color: #f7fafc;
+            border-left: 3px solid transparent;
+        }
+        
+        .subtitle-item {
+            margin-bottom: 16px;
+            padding: 4px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .subtitle-item:hover .subtitle-text {
+            border-left: 3px solid #5a67d8;
+            background-color: #f0f5ff;
+        }
+        
+        .subtitle-item.highlight .subtitle-text {
+            background-color: #fff4de;
+            border-left: 3px solid #f6ad55;
+        }
+        
+        .word {
+            cursor: pointer;
+            position: relative;
+            padding: 2px 0;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+        }
+        
+        .word:hover {
+            background-color: #e2e8f0;
+            color: #4a5568;
+            padding: 2px 3px;
+            margin: 0 -3px;
+        }
+
+        /* Ẩn từ với hiệu ứng mờ */
+        .word.hidden-word {
+            color: transparent;
+            background-color: #cbd5e0;
+            border-radius: 4px;
+            user-select: none;
+            padding: 2px 4px;
+            margin: 0 2px;
+        }
+
+        .word.hidden-word:hover {
+            background-color: #a0aec0;
+        }
+        
+        .dictionary-popup {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+            min-width: 300px;
+            animation: popupFadeIn 0.3s ease;
+        }
+        
+        @keyframes popupFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .dictionary-popup-links {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+        }
+        
+        .dictionary-popup a {
+            display: block;
+            padding: 8px 14px;
+            text-decoration: none;
+            color: white;
+            background-color: #4f46e5;
+            border-radius: 6px;
+            flex: 1;
+            text-align: center;
+            transition: all 0.2s;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+        }
+        
+        .dictionary-popup a:hover {
+            background-color: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(79, 70, 229, 0.4);
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 6px;
+            background: #d3d3d3;
+            outline: none;
+            transition: all 0.2s;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4f46e5;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            background: #4338ca;
+            transform: scale(1.1);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4f46e5;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+        
+        .slider::-moz-range-thumb:hover {
+            background: #4338ca;
+            transform: scale(1.1);
+        }
+        
+        .time-input {
+            width: 120px;
+            padding: 6px 8px;
+            text-align: center;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            transition: all 0.2s;
+            background-color: #f8fafc;
+        }
+        
+        .time-input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+            outline: none;
+        }
+        
+        .audio-player {
+            border-radius: 12px;
+            background-color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .audio-player:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .audio-controls-sticky {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: white;
+            padding: 12px;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        audio {
+            width: 100%;
+            border-radius: 8px;
+            height: 40px;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: #4b5563;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .stats-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.12);
+        }
+        
+        .loop-active {
+            background-color: #4ade80 !important;
+            color: white !important;
+            box-shadow: 0 2px 4px rgba(74, 222, 128, 0.4) !important;
+        }
+
+        .auto-loop-active {
+            background-color: #8b5cf6 !important;
+            color: white !important;
+            box-shadow: 0 2px 4px rgba(139, 92, 246, 0.4) !important;
+        }
+
+        .repeat-loop-active {
+            background-color: #f59e0b !important;
+            color: white !important;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.4) !important;
+        }
+
+        .hide-words-active {
+            background-color: #ec4899 !important;
+            color: white !important;
+            box-shadow: 0 2px 4px rgba(236, 72, 153, 0.4) !important;
+        }
+        
+        .custom-btn {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        
+        .custom-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-blue {
+            background-color: #4f46e5;
+            color: white;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+        }
+        
+        .btn-blue:hover {
+            background-color: #4338ca;
+            box-shadow: 0 4px 8px rgba(79, 70, 229, 0.4);
+        }
+        
+        .btn-gray {
+            background-color: #e5e7eb;
+            color: #4b5563;
+        }
+        
+        .btn-gray:hover {
+            background-color: #d1d5db;
+        }
+
+        .btn-red {
+            background-color: #ef4444;
+            color: white;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-red:hover {
+            background-color: #dc2626;
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
+        }
+
+        .repeat-counter {
+            background-color: #f0f5ff;
+            border: 1px solid #4f46e5;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4f46e5;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .repeat-input {
+            width: 60px;
+            padding: 4px 8px;
+            text-align: center;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            transition: all 0.2s;
+            background-color: #f8fafc;
+        }
+
+        .repeat-input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+            outline: none;
+        }
+
+        .btn-hidden {
+            display: none !important;
+        }
+
+        .btn-visible {
+            display: inline-flex !important;
+        }
+
+        /* Hide words feature styling */
+        .hide-words-settings {
+            background-color: #fce7f3;
+            border: 1px solid #ec4899;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+
+        .hide-words-option {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 16px;
+            cursor: pointer;
+        }
+
+        .hide-words-option input[type="radio"] {
+            margin-right: 6px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .file-input-container {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .file-input-button {
+                margin-bottom: 8px;
+                width: 100%;
+            }
+            
+            .time-input {
+                width: 100px;
+            }
+            
+            .custom-btn {
+                padding: 6px 10px;
+                font-size: 14px;
+            }
+            
+            .p-4 {
+                padding: 0.1rem !important;
+            }
+    
+            .p-5 {
+                padding: 0.4rem !important;
+            }
+            
+        }
+        
+        .gdrive-button {
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(66, 133, 244, 0.3);
+        }
+        
+        .gdrive-button:hover {
+            background-color: #3367D6;
+            box-shadow: 0 4px 8px rgba(66, 133, 244, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .gdrive-button i {
+            margin-right: 8px;
+        }
+        
+        input[type="file"] {
+            cursor: pointer;
+        }
+        
+        input[type="file"]::file-selector-button {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 12px;
+        }
+        
+        input[type="file"]::file-selector-button:hover {
+            background-color: #e5e7eb;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 bg-gradient-to-r from-blue-50 to-indigo-50">
+    <div class="container mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-700 mb-2">Website Luyện Tiếng Anh</h1>
+            <p class="text-gray-600">Học tiếng Anh hiệu quả với audio và transcript</p>
+        </header>
+        
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
+            <!-- Transcript Section (Larger) -->
+            <div class="col-span-1 md:col-span-7 md:order-1 order-2">
+                <div class="bg-white rounded-lg shadow-md p-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-semibold text-gray-800">Transcript</h3>
+                        <button id="hide-words-btn" class="custom-btn btn-gray text-sm">
+                            <i class="fas fa-eye-slash"></i> Ẩn từ
+                        </button>
+                    </div>
+
+                    <!-- Hide Words Settings Panel -->
+                    <div id="hide-words-settings" class="hide-words-settings hidden">
+                        <h4 class="text-sm font-semibold text-pink-800 mb-2">Chọn tỷ lệ ẩn từ:</h4>
+                        <div class="flex flex-wrap gap-4">
+                            <label class="hide-words-option">
+                                <input type="radio" name="hide-percentage" value="25">
+                                <span class="text-sm">Ẩn 25%</span>
+                            </label>
+                            <label class="hide-words-option">
+                                <input type="radio" name="hide-percentage" value="50" checked>
+                                <span class="text-sm">Ẩn 50%</span>
+                            </label>
+                            <label class="hide-words-option">
+                                <input type="radio" name="hide-percentage" value="75">
+                                <span class="text-sm">Ẩn 75%</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="transcript-container" class="transcript-container border border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <div id="transcript-content" class="text-gray-700 leading-relaxed">
+                            <p class="text-center text-gray-500 italic">Hãy tải lên file audio MP3 và transcript SRT để bắt đầu.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Audio Controls (Smaller) -->
+            <div class="col-span-1 md:col-span-5 md:order-2 order-1">
+                <div class="audio-player p-5 mb-6">
+                    <div class="mb-4">
+                        <label for="audio-file" class="block text-sm font-medium text-gray-700 mb-1">Chọn file audio (MP3)</label>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="file" id="audio-file" accept="audio/*" class="block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-full file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-indigo-50 file:text-indigo-700
+                                hover:file:bg-indigo-100">
+                            <button id="gdrive-audio-btn" class="gdrive-button">
+                                <i class="fab fa-google-drive"></i> Google Drive
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="transcript-file" class="block text-sm font-medium text-gray-700 mb-1">Chọn file transcript (SRT)</label>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="file" id="transcript-file" accept="*" class="block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-full file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-indigo-50 file:text-indigo-700
+                                hover:file:bg-indigo-100">
+                            <button id="gdrive-transcript-btn" class="gdrive-button">
+                                <i class="fab fa-google-drive"></i> Google Drive
+                            </button>
+                        </div>
+                    </div>
+                    
+                    
+                    <!-- Sticky Audio Controls -->
+                    <div class="audio-controls-sticky">
+                        <audio id="audio-player" controls class="w-full mb-4"></audio>
+                        
+                        <div class="flex flex-wrap items-center gap-3 mb-4">
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-700 mr-2">Tốc độ:</span>
+                                <input type="range" min="0.5" max="2" value="1" step="0.1" class="slider w-24" id="speed-slider">
+                                <span id="speed-value" class="ml-2 text-sm text-gray-700">1.0x</span>
+                            </div>
+                            
+                            <div class="flex items-center ml-auto gap-2">
+                                <button id="loop-all-btn" class="custom-btn btn-gray text-sm">
+                                    <i class="fas fa-repeat"></i> Lặp tất cả
+                                </button>
+                                
+                                <button id="auto-loop-btn" class="custom-btn btn-gray text-sm">
+                                    <i class="fas fa-sync-alt"></i> Lặp câu
+                                </button>
+
+                                <button id="repeat-loop-btn" class="custom-btn btn-gray text-sm">
+                                    <i class="fas fa-redo"></i> Lặp n lần
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Repeat Loop Settings -->
+                        <div id="repeat-loop-settings" class="bg-orange-50 p-4 rounded-lg mb-4 hidden">
+                            <h3 class="text-sm font-semibold text-orange-800 mb-2">Lặp câu với số lần tùy chọn</h3>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <div class="flex items-center">
+                                    <label for="repeat-count" class="text-xs text-gray-600 mr-2">Số lần:</label>
+                                    <input type="number" id="repeat-count" min="1" max="30" value="3" class="repeat-input">
+                                </div>
+                                
+                                <div class="repeat-counter">
+                                    <span id="repeat-status">Chưa bắt đầu</span>
+                                </div>
+                                
+                                <button id="start-repeat-loop" class="custom-btn btn-blue text-sm btn-visible">
+                                    <i class="fas fa-play"></i> Bắt đầu
+                                </button>
+                                
+                                <button id="stop-repeat-loop" class="custom-btn btn-red text-sm btn-hidden">
+                                    <i class="fas fa-stop"></i> Dừng
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                            <h3 class="text-sm font-semibold text-blue-800 mb-2">Lặp khoảng thời gian</h3>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div>
+                                    <label for="loop-start" class="block text-xs text-gray-600 mb-1">Bắt đầu</label>
+                                    <input type="text" id="loop-start" placeholder="00:00:00,000" class="time-input">
+                                </div>
+                                
+                                <div>
+                                    <label for="loop-end" class="block text-xs text-gray-600 mb-1">Kết thúc</label>
+                                    <input type="text" id="loop-end" placeholder="00:00:00,000" class="time-input">
+                                </div>
+                                
+                                <button id="set-loop" class="custom-btn btn-blue text-sm">
+                                    <i class="fas fa-repeat"></i> Thiết lập
+                                </button>
+                                
+                                <button id="clear-loop" class="custom-btn btn-gray text-sm">
+                                    <i class="fas fa-times"></i> Xóa
+                                </button>
+                                
+                                <div id="current-loop" class="text-sm text-blue-600 ml-2 hidden">
+                                    Đang lặp: <span id="loop-info"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stats Section -->
+                    <div class="stats-card p-5 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-chart-line text-indigo-600 mr-2"></i> Thống kê học tập
+                        </h3>
+                        
+                        <div class="bg-indigo-50 rounded-lg p-4 mb-4">
+                            <h4 class="text-sm font-medium text-indigo-800 mb-2">Tổng thời gian</h4>
+                            <div class="flex items-center">
+                                <i class="fas fa-clock text-indigo-500 mr-2"></i>
+                                <span id="today-time" class="text-2xl font-semibold text-indigo-700">00:00:00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-indigo-50 rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-indigo-800 mb-2">Phiên học hiện tại</h4>
+                            <div class="flex items-center">
+                                <i class="fas fa-stopwatch text-indigo-500 mr-2"></i>
+                                <span id="current-session-time" class="text-2xl font-semibold text-indigo-700">00:00:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="text-center text-gray-500 text-sm mt-8 pb-4">
+            &copy; 2025 Website Luyện Tiếng Anh | Được tạo bởi Tran Nhon Nhat
+        </footer>
+    </div>
+
+    <!-- Google API Client Library -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://apis.google.com/js/client.js"></script>
+
+    <script>
+        // DOM Elements
+        const audioPlayer = document.getElementById('audio-player');
+        const audioFileInput = document.getElementById('audio-file');
+        const transcriptFileInput = document.getElementById('transcript-file');
+        const transcriptContainer = document.getElementById('transcript-container');
+        const transcriptContent = document.getElementById('transcript-content');
+        const speedSlider = document.getElementById('speed-slider');
+        const speedValue = document.getElementById('speed-value');
+        const loopAllButton = document.getElementById('loop-all-btn');
+        const autoLoopButton = document.getElementById('auto-loop-btn');
+        const repeatLoopButton = document.getElementById('repeat-loop-btn');
+        const repeatLoopSettings = document.getElementById('repeat-loop-settings');
+        const repeatCountInput = document.getElementById('repeat-count');
+        const repeatStatus = document.getElementById('repeat-status');
+        const startRepeatLoopButton = document.getElementById('start-repeat-loop');
+        const stopRepeatLoopButton = document.getElementById('stop-repeat-loop');
+        const loopStartInput = document.getElementById('loop-start');
+        const loopEndInput = document.getElementById('loop-end');
+        const setLoopButton = document.getElementById('set-loop');
+        const clearLoopButton = document.getElementById('clear-loop');
+        const currentLoopDiv = document.getElementById('current-loop');
+        const loopInfoSpan = document.getElementById('loop-info');
+        const totalTimeSpan = document.getElementById('today-time');
+        const currentSessionTimeSpan = document.getElementById('current-session-time');
+        const gdriveAudioBtn = document.getElementById('gdrive-audio-btn');
+        const gdriveTranscriptBtn = document.getElementById('gdrive-transcript-btn');
+        const hideWordsBtn = document.getElementById('hide-words-btn');
+        const hideWordsSettings = document.getElementById('hide-words-settings');
+
+        // State variables
+        let subtitles = [];
+        let adjustedSubtitles = [];
+        let originalSubtitles = [];
+        let currentSubtitleIndex = -1;
+        let isLooping = false;
+        let isAutoLooping = false;
+        let isRepeatLooping = false;
+        let currentRepeatCount = 0;
+        let maxRepeatCount = 3;
+        let repeatCurrentSubtitleIndex = -1;
+        let isRepeatLoopRunning = false;
+        let repeatLoopTransitionInProgress = false;
+        let loopStartTime = 0;
+        let loopEndTime = 0;
+        let learningTime = 0;
+        let totalLearningTime = 0;
+        let sessionStartTime = 0;
+        let timerInterval = null;
+        let isPlaying = false;
+        let isLoopAllActive = false;
+        let autoLoopTimeout = null;
+        let lastScrollTime = 0;
+        let requestHighPrecision = true;
+        let lastTimeUpdateTime = 0;
+        let lastAutoScrolledIndex = -1;
+        let pendingTimeUpdate = false;
+        let timeUpdatePrecisionIntervalId = null;
+        let isSeekingManually = false;
+        let seekingToIndex = -1;
+        let hasAudioMetadata = false;
+        let audioDuration = 0;
+        let pauseBeforeResumeLoop = true;
+        let seekInProgress = false;
+        let loopTimeAdjustment = 0.15;
+        let autoDetectBoundaries = true;
+        
+        // Hide words feature variables
+        let isHideWordsActive = false;
+        let hidePercentage = 50;
+        let hiddenWordIndices = [];
+
+        // Google Drive API configuration
+        const CLIENT_ID = '1081856756337-2dr8qvbaqod0q12s17ojqdnecjtlld39.apps.googleusercontent.com';
+        const API_KEY = 'AIzaSyCSt5W5AqZJJW9fPqRVm6rLMFEA-JSs9ag';
+        const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'];
+        const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
+        let gdriveApiLoaded = false;
+
+        // Initialize
+        function init() {
+            loadStoredStats();
+            setupEventListeners();
+            loadGoogleDriveAPI();
+        }
+
+        // Load Google Drive API
+        function loadGoogleDriveAPI() {
+            gdriveAudioBtn.disabled = true;
+            gdriveTranscriptBtn.disabled = true;
+            
+            gapi.load('client:auth2', initGoogleDriveClient);
+        }
+
+        // Initialize Google Drive client
+        function initGoogleDriveClient() {
+            gapi.client.init({
+                apiKey: API_KEY,
+                clientId: CLIENT_ID,
+                discoveryDocs: DISCOVERY_DOCS,
+                scope: SCOPES
+            }).then(() => {
+                gdriveApiLoaded = true;
+                gdriveAudioBtn.disabled = false;
+                gdriveTranscriptBtn.disabled = false;
+            }).catch(error => {
+                console.error('Error initializing Google Drive API:', error);
+            });
+        }
+
+        // Handle Google Drive button click for audio
+        function handleGDriveAudioButtonClick() {
+            if (!gdriveApiLoaded) {
+                alert('Google Drive API đang tải. Vui lòng thử lại sau.');
+                return;
+            }
+            
+            if (!gapi.auth2.getAuthInstance().isSignedIn.get()) {
+                gapi.auth2.getAuthInstance().signIn().then(openGoogleDrivePicker.bind(null, 'audio'));
+            } else {
+                openGoogleDrivePicker('audio');
+            }
+        }
+
+        // Handle Google Drive button click for transcript
+        function handleGDriveTranscriptButtonClick() {
+            if (!gdriveApiLoaded) {
+                alert('Google Drive API đang tải. Vui lòng thử lại sau.');
+                return;
+            }
+            
+            if (!gapi.auth2.getAuthInstance().isSignedIn.get()) {
+                gapi.auth2.getAuthInstance().signIn().then(openGoogleDrivePicker.bind(null, 'transcript'));
+            } else {
+                openGoogleDrivePicker('transcript');
+            }
+        }
+
+        // Open Google Drive Picker
+        function openGoogleDrivePicker(fileType) {
+            const mimeTypes = fileType === 'audio' 
+                ? 'audio/mp3,audio/mpeg' 
+                : '.srt,text/plain';
+            
+            gapi.load('picker', () => {
+                const view = new google.picker.View(google.picker.ViewId.DOCS);
+                view.setMimeTypes(mimeTypes);
+                
+                const picker = new google.picker.PickerBuilder()
+                    .enableFeature(google.picker.Feature.NAV_HIDDEN)
+                    .setAppId(CLIENT_ID.split('-')[0])
+                    .setOAuthToken(gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token)
+                    .addView(view)
+                    .setCallback((data) => handlePickerCallback(data, fileType))
+                    .build();
+                    
+                picker.setVisible(true);
+            });
+        }
+
+        // Handle picker callback
+        function handlePickerCallback(data, fileType) {
+            if (data.action === google.picker.Action.PICKED) {
+                const file = data.docs[0];
+                const fileId = file.id;
+                
+                gapi.client.drive.files.get({
+                    fileId: fileId,
+                    alt: 'media'
+                }).then((response) => {
+                    if (fileType === 'audio') {
+                        const accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('GET', `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, true);
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+                        xhr.responseType = 'blob';
+                        xhr.onload = function() {
+                            if (this.status === 200) {
+                                const blob = new Blob([xhr.response], {type: file.mimeType});
+                                const url = URL.createObjectURL(blob);
+                                audioPlayer.src = url;
+                                audioPlayer.load();
+                                
+                                audioPlayer.addEventListener('loadedmetadata', function onMetadata() {
+                                    hasAudioMetadata = true;
+                                    audioDuration = audioPlayer.duration;
+                                    
+                                    if (subtitles.length > 0 && autoDetectBoundaries) {
+                                        adjustSubtitleTimings();
+                                        renderTranscript();
+                                    }
+                                    
+                                    audioPlayer.removeEventListener('loadedmetadata', onMetadata);
+                                });
+                            }
+                        };
+                        xhr.send();
+                    } else {
+                        const content = response.body;
+                        originalSubtitles = parseSRT(content);
+                        subtitles = [...originalSubtitles];
+                        
+                        if (hasAudioMetadata && autoDetectBoundaries) {
+                            adjustSubtitleTimings();
+                        }
+                        
+                        renderTranscript();
+                    }
+                }).catch((error) => {
+                    console.error('Error fetching file from Google Drive:', error);
+                    alert('Không thể tải file từ Google Drive. Vui lòng thử lại.');
+                });
+            }
+        }
+
+        // Load stored stats from localStorage
+        function loadStoredStats() {
+            const storedTotalTime = localStorage.getItem('totalLearningTime');
+            
+            if (storedTotalTime) {
+                totalLearningTime = parseInt(storedTotalTime);
+                updateTotalTimeDisplay();
+            }
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            audioFileInput.addEventListener('change', handleAudioFileUpload);
+            transcriptFileInput.addEventListener('change', handleTranscriptFileUpload);
+            gdriveAudioBtn.addEventListener('click', handleGDriveAudioButtonClick);
+            gdriveTranscriptBtn.addEventListener('click', handleGDriveTranscriptButtonClick);
+            speedSlider.addEventListener('input', handleSpeedChange);
+            loopAllButton.addEventListener('click', handleLoopAllChange);
+            autoLoopButton.addEventListener('click', handleAutoLoopChange);
+            repeatLoopButton.addEventListener('click', handleRepeatLoopChange);
+            startRepeatLoopButton.addEventListener('click', startRepeatLoop);
+            stopRepeatLoopButton.addEventListener('click', stopRepeatLoop);
+            repeatCountInput.addEventListener('change', handleRepeatCountChange);
+            setLoopButton.addEventListener('click', setCustomLoop);
+            clearLoopButton.addEventListener('click', clearCustomLoop);
+            audioPlayer.addEventListener('timeupdate', handleTimeUpdate);
+            audioPlayer.addEventListener('play', handleAudioPlay);
+            audioPlayer.addEventListener('pause', handleAudioPause);
+            audioPlayer.addEventListener('ended', handleAudioEnded);
+            audioPlayer.addEventListener('seeking', handleAudioSeeking);
+            audioPlayer.addEventListener('seeked', handleAudioSeeked);
+            audioPlayer.addEventListener('loadedmetadata', handleAudioMetadataLoaded);
+            window.addEventListener('beforeunload', saveStats);
+
+            // Hide words feature
+            hideWordsBtn.addEventListener('click', toggleHideWords);
+            document.querySelectorAll('input[name="hide-percentage"]').forEach(radio => {
+                radio.addEventListener('change', handleHidePercentageChange);
+            });
+        }
+
+        // Toggle hide words feature
+        function toggleHideWords() {
+            isHideWordsActive = !isHideWordsActive;
+            
+            if (isHideWordsActive) {
+                hideWordsBtn.classList.add('hide-words-active');
+                hideWordsBtn.innerHTML = '<i class="fas fa-eye"></i> Hiện từ';
+                hideWordsSettings.classList.remove('hidden');
+                applyHideWords();
+            } else {
+                hideWordsBtn.classList.remove('hide-words-active');
+                hideWordsBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Ẩn từ';
+                hideWordsSettings.classList.add('hidden');
+                removeHideWords();
+            }
+        }
+
+        // Handle hide percentage change
+        function handleHidePercentageChange(e) {
+            hidePercentage = parseInt(e.target.value);
+            if (isHideWordsActive) {
+                applyHideWords();
+            }
+        }
+
+        // Apply hide words to all subtitles
+        function applyHideWords() {
+            if (subtitles.length === 0) return;
+
+            hiddenWordIndices = [];
+
+            // Process each subtitle
+            subtitles.forEach((subtitle, subtitleIndex) => {
+                const words = subtitle.text.split(' ').filter(word => word.trim().length > 0);
+                const totalWords = words.length;
+                const wordsToHide = Math.floor(totalWords * hidePercentage / 100);
+
+                // Generate random indices to hide
+                const indices = [];
+                while (indices.length < wordsToHide) {
+                    const randomIndex = Math.floor(Math.random() * totalWords);
+                    if (!indices.includes(randomIndex)) {
+                        indices.push(randomIndex);
+                    }
+                }
+
+                hiddenWordIndices[subtitleIndex] = indices;
+            });
+
+            // Re-render transcript with hidden words
+            renderTranscript();
+        }
+
+        // Remove hide words effect
+        function removeHideWords() {
+            hiddenWordIndices = [];
+            renderTranscript();
+        }
+
+        // Handle repeat count change
+        function handleRepeatCountChange() {
+            if (isRepeatLooping) {
+                maxRepeatCount = parseInt(repeatCountInput.value) || 3;
+                if (isRepeatLoopRunning && repeatCurrentSubtitleIndex !== -1) {
+                    updateRepeatStatus();
+                }
+            }
+        }
+
+        // Handle repeat loop mode toggle
+        function handleRepeatLoopChange() {
+            isRepeatLooping = !isRepeatLooping;
+            
+            if (isRepeatLooping) {
+                repeatLoopButton.classList.add('repeat-loop-active');
+                repeatLoopSettings.classList.remove('hidden');
+                
+                if (isAutoLooping) {
+                    isAutoLooping = false;
+                    autoLoopButton.classList.remove('auto-loop-active');
+                }
+                
+                if (isLoopAllActive) {
+                    isLoopAllActive = false;
+                    audioPlayer.loop = false;
+                    loopAllButton.classList.remove('loop-active');
+                }
+            } else {
+                repeatLoopButton.classList.remove('repeat-loop-active');
+                repeatLoopSettings.classList.add('hidden');
+                stopRepeatLoop();
+            }
+        }
+
+        // Toggle button visibility
+        function toggleRepeatButtons(showStart) {
+            if (showStart) {
+                startRepeatLoopButton.classList.remove('btn-hidden');
+                startRepeatLoopButton.classList.add('btn-visible');
+                stopRepeatLoopButton.classList.remove('btn-visible');
+                stopRepeatLoopButton.classList.add('btn-hidden');
+            } else {
+                startRepeatLoopButton.classList.remove('btn-visible');
+                startRepeatLoopButton.classList.add('btn-hidden');
+                stopRepeatLoopButton.classList.remove('btn-hidden');
+                stopRepeatLoopButton.classList.add('btn-visible');
+            }
+        }
+
+        // Start repeat loop
+        function startRepeatLoop() {
+            if (!isRepeatLooping || subtitles.length === 0) {
+                return;
+            }
+
+            maxRepeatCount = parseInt(repeatCountInput.value) || 3;
+            
+            let startIndex = currentSubtitleIndex >= 0 ? currentSubtitleIndex : 0;
+            
+            isRepeatLoopRunning = true;
+            repeatLoopTransitionInProgress = false;
+            
+            toggleRepeatButtons(false);
+            
+            startRepeatSubtitle(startIndex);
+        }
+
+        // Stop repeat loop
+        function stopRepeatLoop() {
+            isRepeatLoopRunning = false;
+            repeatLoopTransitionInProgress = false;
+            currentRepeatCount = 0;
+            repeatCurrentSubtitleIndex = -1;
+            isLooping = false;
+            clearCustomLoop();
+            updateRepeatStatus();
+            
+            toggleRepeatButtons(true);
+        }
+
+        // Start repeating a specific subtitle
+        function startRepeatSubtitle(subtitleIndex) {
+            if (!isRepeatLoopRunning || subtitleIndex >= subtitles.length) {
+                if (isRepeatLoopRunning) {
+                    repeatStatus.textContent = 'Hoàn thành tất cả câu!';
+                    
+                    setTimeout(() => {
+                        if (isRepeatLoopRunning) {
+                            isRepeatLooping = false;
+                            repeatLoopButton.classList.remove('repeat-loop-active');
+                            repeatLoopSettings.classList.add('hidden');
+                            stopRepeatLoop();
+                        }
+                    }, 2000);
+                }
+                return;
+            }
+
+            repeatCurrentSubtitleIndex = subtitleIndex;
+            currentRepeatCount = 0;
+            repeatLoopTransitionInProgress = false;
+            
+            setLoopToSubtitle(subtitleIndex);
+            updateRepeatStatus();
+        }
+
+        // Update repeat status display
+        function updateRepeatStatus() {
+            if (!isRepeatLoopRunning || repeatCurrentSubtitleIndex === -1) {
+                repeatStatus.textContent = 'Chưa bắt đầu';
+                return;
+            }
+
+            const subtitleNum = repeatCurrentSubtitleIndex + 1;
+            const totalSubtitles = subtitles.length;
+            
+            if (repeatLoopTransitionInProgress) {
+                repeatStatus.textContent = `Chuyển sang câu ${subtitleNum + 1}...`;
+            } else if (currentRepeatCount >= maxRepeatCount) {
+                repeatStatus.textContent = `Câu ${subtitleNum}/${totalSubtitles} - Hoàn thành (${maxRepeatCount}/${maxRepeatCount})`;
+            } else {
+                repeatStatus.textContent = `Câu ${subtitleNum}/${totalSubtitles} - Lần ${currentRepeatCount + 1}/${maxRepeatCount}`;
+            }
+        }
+
+        // Handle transition to next subtitle in repeat loop
+        function handleRepeatLoopTransition() {
+            if (!isRepeatLoopRunning || repeatLoopTransitionInProgress || repeatCurrentSubtitleIndex === -1) {
+                return;
+            }
+            
+            if (currentRepeatCount >= maxRepeatCount) {
+                repeatLoopTransitionInProgress = true;
+                updateRepeatStatus();
+                
+                setTimeout(() => {
+                    if (isRepeatLoopRunning) {
+                        startRepeatSubtitle(repeatCurrentSubtitleIndex + 1);
+                    }
+                }, 100);
+            }
+        }
+
+        // Handle audio metadata loaded
+        function handleAudioMetadataLoaded() {
+            hasAudioMetadata = true;
+            audioDuration = audioPlayer.duration;
+            
+            if (subtitles.length > 0 && autoDetectBoundaries) {
+                adjustSubtitleTimings();
+                renderTranscript();
+            }
+        }
+
+        // Handle audio file upload
+        function handleAudioFileUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const audioURL = URL.createObjectURL(file);
+                audioPlayer.src = audioURL;
+                audioPlayer.load();
+                
+                audioPlayer.addEventListener('loadedmetadata', function onMetadata() {
+                    hasAudioMetadata = true;
+                    audioDuration = audioPlayer.duration;
+                    
+                    if (subtitles.length > 0 && autoDetectBoundaries) {
+                        adjustSubtitleTimings();
+                        renderTranscript();
+                    }
+                    
+                    audioPlayer.removeEventListener('loadedmetadata', onMetadata);
+                });
+            }
+        }
+
+        // Handle transcript file upload
+        function handleTranscriptFileUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const content = event.target.result;
+                    originalSubtitles = parseSRT(content);
+                    subtitles = [...originalSubtitles];
+                    
+                    if (hasAudioMetadata && autoDetectBoundaries) {
+                        adjustSubtitleTimings();
+                    }
+                    
+                    renderTranscript();
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Adjust subtitle timings to ensure no lost ending or overlapping
+        function adjustSubtitleTimings() {
+            if (subtitles.length === 0 || !hasAudioMetadata) {
+                return;
+            }
+            
+            adjustedSubtitles = [...subtitles];
+            
+            for (let i = 0; i < adjustedSubtitles.length; i++) {
+                if (adjustedSubtitles[i].endTime > audioDuration) {
+                    adjustedSubtitles[i].endTime = audioDuration;
+                    adjustedSubtitles[i].endTimeStr = secondsToSRTTime(audioDuration);
+                }
+            }
+            
+            for (let i = 0; i < adjustedSubtitles.length - 1; i++) {
+                const current = adjustedSubtitles[i];
+                const next = adjustedSubtitles[i + 1];
+                
+                const idealGap = Math.min(0.2, Math.max(0.05, (next.startTime - current.endTime) / 2));
+                
+                if (current.endTime >= next.startTime - idealGap) {
+                    current.endTime = next.startTime - idealGap;
+                    current.endTimeStr = secondsToSRTTime(current.endTime);
+                }
+                
+                if (next.startTime <= current.endTime + idealGap) {
+                    next.startTime = current.endTime + idealGap;
+                    next.startTimeStr = secondsToSRTTime(next.startTime);
+                }
+            }
+            
+            for (let i = 0; i < adjustedSubtitles.length - 1; i++) {
+                const current = adjustedSubtitles[i];
+                const next = adjustedSubtitles[i + 1];
+                
+                const maxExtension = next.startTime - current.endTime - 0.1;
+                
+                if (maxExtension > 0) {
+                    const extension = Math.min(0.3, maxExtension);
+                    current.endTime += extension;
+                    current.endTimeStr = secondsToSRTTime(current.endTime);
+                }
+            }
+            
+            if (adjustedSubtitles.length > 0) {
+                const lastSubtitle = adjustedSubtitles[adjustedSubtitles.length - 1];
+                const maxEndTime = Math.min(audioDuration, lastSubtitle.endTime + 0.3);
+                lastSubtitle.endTime = maxEndTime;
+                lastSubtitle.endTimeStr = secondsToSRTTime(maxEndTime);
+            }
+            
+            subtitles = adjustedSubtitles;
+        }
+
+        // Parse SRT format
+        function parseSRT(content) {
+            const blocks = content.trim().split(/\r?\n\r?\n/);
+            const subtitles = [];
+            
+            for (let block of blocks) {
+                const lines = block.split(/\r?\n/);
+                if (lines.length >= 3) {
+                    const timecodeMatch = lines[1].match(/(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})/);
+                    if (timecodeMatch) {
+                        const startTime = convertSRTTimeToSeconds(timecodeMatch[1]);
+                        const endTime = convertSRTTimeToSeconds(timecodeMatch[2]);
+                        
+                        const text = lines.slice(2).join(' ');
+                        
+                        subtitles.push({
+                            number: parseInt(lines[0]),
+                            startTime,
+                            endTime,
+                            text,
+                            startTimeStr: timecodeMatch[1],
+                            endTimeStr: timecodeMatch[2],
+                            words: makeWordsClickable(text)
+                        });
+                    }
+                }
+            }
+            
+            subtitles.sort((a, b) => a.startTime - b.startTime);
+            
+            return subtitles;
+        }
+
+        // Convert SRT time format to seconds with high precision
+        function convertSRTTimeToSeconds(timeString) {
+            const parts = timeString.split(':');
+            const seconds = parts[2].split(',');
+            return parseFloat(parts[0]) * 3600 + parseFloat(parts[1]) * 60 + parseFloat(seconds[0]) + parseFloat(seconds[1]) / 1000;
+        }
+
+        // Convert seconds to SRT time format with high precision
+        function secondsToSRTTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            seconds %= 3600;
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            const ms = Math.floor((seconds % 1) * 1000);
+            
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')},${String(ms).padStart(3, '0')}`;
+        }
+
+        // Format time for display
+        function formatTimeForDisplay(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            seconds %= 3600;
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // Make words clickable for dictionary lookup with hide functionality
+        function makeWordsClickable(text, subtitleIndex = -1) {
+            const words = text.split(' ');
+            
+            return words.map((word, wordIndex) => {
+                const cleanWord = word.replace(/[.,!?;:"'()\[\]{}]/g, '');
+                
+                // Check if this word should be hidden
+                const shouldHide = isHideWordsActive && 
+                                   subtitleIndex !== -1 && 
+                                   hiddenWordIndices[subtitleIndex] && 
+                                   hiddenWordIndices[subtitleIndex].includes(wordIndex);
+                
+                const hiddenClass = shouldHide ? ' hidden-word' : '';
+                
+                if (cleanWord.length > 0) {
+                    return `<span class="word${hiddenClass}" data-word="${cleanWord}">${word}</span>`;
+                } else {
+                    return word;
+                }
+            }).join(' ');
+        }
+
+        // Render transcript with clickable words
+        function renderTranscript() {
+            if (subtitles.length === 0) {
+                transcriptContent.innerHTML = '<p class="text-center text-gray-500 italic">Hãy tải lên file audio MP3 và transcript SRT để bắt đầu.</p>';
+                return;
+            }
+            
+            let html = '';
+            
+            subtitles.forEach((subtitle, index) => {
+                // Re-generate words with hide functionality
+                const wordsHtml = makeWordsClickable(subtitle.text, index);
+                
+                html += `<div class="subtitle-item mb-4" data-index="${index}" id="subtitle-${index}" data-start="${subtitle.startTime}" data-end="${subtitle.endTime}">`;
+                html += `<div class="time-display text-xs mb-1">${subtitle.startTimeStr} - ${subtitle.endTimeStr}</div>`;
+                html += `<div class="subtitle-text">${wordsHtml}</div>`;
+                html += `</div>`;
+            });
+            
+            transcriptContent.innerHTML = html;
+            
+            document.querySelectorAll('.word').forEach(wordElement => {
+                wordElement.addEventListener('click', function(e) {
+                    // Only show dictionary if word is not hidden
+                    if (!this.classList.contains('hidden-word')) {
+                        showDictionaryOptions(e);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.subtitle-item').forEach(subtitleElement => {
+                subtitleElement.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('word')) {
+                        return;
+                    }
+                    
+                    const index = parseInt(this.getAttribute('data-index'));
+                    
+                    if (isAutoLooping) {
+                        setLoopToSubtitle(index);
+                    } else if (isRepeatLooping && isRepeatLoopRunning) {
+                        repeatCurrentSubtitleIndex = index;
+                        currentRepeatCount = 0;
+                        repeatLoopTransitionInProgress = false;
+                        maxRepeatCount = parseInt(repeatCountInput.value) || 3;
+                        setLoopToSubtitle(index);
+                        updateRepeatStatus();
+                    } else {
+                        seekToSubtitle(index);
+                    }
+                });
+            });
+            
+            if (audioPlayer.src) {
+                setupHighPrecisionTimeTracking();
+            }
+        }
+
+        // Seek to subtitle with proper handling
+        function seekToSubtitle(index) {
+            if (index >= 0 && index < subtitles.length) {
+                if (seekInProgress) return;
+                
+                seekInProgress = true;
+                isSeekingManually = true;
+                seekingToIndex = index;
+                
+                const startTime = subtitles[index].startTime;
+                audioPlayer.currentTime = startTime;
+                
+                if (audioPlayer.paused) {
+                    audioPlayer.play().catch(e => {
+                        console.error("Error playing audio:", e);
+                        seekInProgress = false;
+                    });
+                }
+                
+                setTimeout(() => {
+                    seekInProgress = false;
+                    isSeekingManually = false;
+                }, 100);
+            }
+        }
+
+        // Set up high precision time tracking
+        function setupHighPrecisionTimeTracking() {
+            if (timeUpdatePrecisionIntervalId) {
+                clearInterval(timeUpdatePrecisionIntervalId);
+            }
+            
+            if (requestHighPrecision) {
+                timeUpdatePrecisionIntervalId = setInterval(() => {
+                    if (isPlaying && !audioPlayer.paused && !pendingTimeUpdate) {
+                        handlePreciseTimeUpdate();
+                    }
+                }, 16);
+            }
+        }
+        
+        // Handle precise time updates
+        function handlePreciseTimeUpdate() {
+            pendingTimeUpdate = true;
+            const currentTime = audioPlayer.currentTime;
+            
+            if (isLooping && currentTime >= loopEndTime - 0.05) {
+                if (isRepeatLoopRunning && repeatCurrentSubtitleIndex !== -1 && !repeatLoopTransitionInProgress) {
+                    currentRepeatCount++;
+                    updateRepeatStatus();
+                    
+                    if (currentRepeatCount >= maxRepeatCount) {
+                        handleRepeatLoopTransition();
+                        pendingTimeUpdate = false;
+                        return;
+                    }
+                }
+                
+                if (pauseBeforeResumeLoop) {
+                    audioPlayer.pause();
+                    
+                    if (autoLoopTimeout) {
+                        clearTimeout(autoLoopTimeout);
+                    }
+                    
+                    autoLoopTimeout = setTimeout(() => {
+                        if (seekInProgress) return;
+                        
+                        seekInProgress = true;
+                        audioPlayer.currentTime = loopStartTime;
+                        
+                        audioPlayer.play().catch(e => {
+                            console.error("Error playing audio:", e);
+                        }).finally(() => {
+                            setTimeout(() => {
+                                seekInProgress = false;
+                            }, 100);
+                        });
+                    }, 100);
+                } else {
+                    if (seekInProgress) return;
+                    
+                    seekInProgress = true;
+                    audioPlayer.currentTime = loopStartTime;
+                    
+                    setTimeout(() => {
+                        seekInProgress = false;
+                    }, 100);
+                }
+            }
+            
+            highlightCurrentSubtitlePrecise(currentTime);
+            
+            pendingTimeUpdate = false;
+        }
+        
+        // Highlight current subtitle with high precision
+        function highlightCurrentSubtitlePrecise(currentTime) {
+            let foundIndex = -1;
+            let exactMatch = false;
+            
+            for (let i = 0; i < subtitles.length; i++) {
+                const subtitle = subtitles[i];
+                
+                if (currentTime >= subtitle.startTime && currentTime <= subtitle.endTime) {
+                    foundIndex = i;
+                    exactMatch = true;
+                    break;
+                }
+                
+                if (i < subtitles.length - 1) {
+                    if (currentTime > subtitle.endTime && currentTime < subtitles[i + 1].startTime) {
+                        foundIndex = -1;
+                        break;
+                    }
+                }
+            }
+            
+            if (!exactMatch && foundIndex === -1) {
+                for (let i = 0; i < subtitles.length; i++) {
+                    const subtitle = subtitles[i];
+                    if (Math.abs(currentTime - subtitle.endTime) < 0.01) {
+                        foundIndex = -1;
+                        break;
+                    }
+                }
+            }
+            
+            if (foundIndex !== currentSubtitleIndex) {
+                const previousElement = document.querySelector('.subtitle-item.highlight');
+                if (previousElement) {
+                    previousElement.classList.remove('highlight');
+                }
+                
+                currentSubtitleIndex = foundIndex;
+                
+                if (foundIndex !== -1) {
+                    const currentElement = document.getElementById(`subtitle-${foundIndex}`);
+                    if (currentElement) {
+                        currentElement.classList.add('highlight');
+                        
+                        const now = Date.now();
+                        if (now - lastScrollTime > 300 && foundIndex !== lastAutoScrolledIndex) {
+                            currentElement.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center',
+                            });
+                            lastScrollTime = now;
+                            lastAutoScrolledIndex = foundIndex;
+                        }
+                        
+                        if (isAutoLooping && isPlaying && !isSeekingManually) {
+                            setLoopToSubtitle(foundIndex);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Set loop to specific subtitle by index
+        function setLoopToSubtitle(index) {
+            if (index >= 0 && index < subtitles.length) {
+                const subtitle = subtitles[index];
+                
+                loopStartTime = subtitle.startTime;
+                
+                loopEndTime = subtitle.endTime + loopTimeAdjustment;
+                
+                if (hasAudioMetadata && loopEndTime > audioPlayer.duration) {
+                    loopEndTime = audioPlayer.duration;
+                }
+                
+                if (index < subtitles.length - 1) {
+                    const nextStartTime = subtitles[index + 1].startTime;
+                    if (loopEndTime > nextStartTime) {
+                        loopEndTime = nextStartTime - 0.05;
+                    }
+                }
+                
+                isLooping = true;
+                
+                currentLoopDiv.classList.remove('hidden');
+                loopInfoSpan.textContent = `${subtitle.startTimeStr} - ${secondsToSRTTime(loopEndTime)}`;
+                
+                loopStartInput.value = subtitle.startTimeStr;
+                loopEndInput.value = secondsToSRTTime(loopEndTime);
+                
+                const currentTime = audioPlayer.currentTime;
+                
+                if (currentTime < subtitle.startTime || currentTime > subtitle.endTime - 0.5) {
+                    if (!seekInProgress) {
+                        seekInProgress = true;
+                        
+                        audioPlayer.currentTime = subtitle.startTime;
+                        
+                        if (audioPlayer.paused) {
+                            audioPlayer.play().catch(e => {
+                                console.error("Error playing audio:", e);
+                            }).finally(() => {
+                                setTimeout(() => {
+                                    seekInProgress = false;
+                                }, 100);
+                            });
+                        } else {
+                            setTimeout(() => {
+                                seekInProgress = false;
+                            }, 100);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Handle audio seeking event
+        function handleAudioSeeking() {
+            lastScrollTime = Date.now() + 1000;
+            
+            if (!seekInProgress) {
+                isSeekingManually = true;
+            }
+        }
+        
+        // Handle audio seeked event
+        function handleAudioSeeked() {
+            if (isPlaying) {
+                handlePreciseTimeUpdate();
+            }
+            
+            setTimeout(() => {
+                isSeekingManually = false;
+            }, 200);
+        }
+
+        // Show dictionary options when word is clicked
+        function showDictionaryOptions(e) {
+            const word = e.target.getAttribute('data-word');
+            
+            document.querySelectorAll('.dictionary-popup').forEach(popup => {
+                popup.remove();
+            });
+            
+            const popup = document.createElement('div');
+            popup.className = 'dictionary-popup';
+            popup.innerHTML = `
+                <div class="dictionary-popup-links">
+                    <a href="https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(word)}" target="_blank">
+                        Cambridge
+                    </a>
+                    <a href="https://dict.laban.vn/find?type=1&query=${encodeURIComponent(word)}" target="_blank">
+                        Laban
+                    </a>
+                </div>
+            `;
+            
+            e.target.appendChild(popup);
+            popup.style.display = 'block';
+            
+            document.addEventListener('click', function closePopup(event) {
+                if (!popup.contains(event.target) && event.target !== e.target) {
+                    popup.remove();
+                    document.removeEventListener('click', closePopup);
+                }
+            });
+        }
+
+        // Handle speed change
+        function handleSpeedChange() {
+            const speed = parseFloat(speedSlider.value);
+            audioPlayer.playbackRate = speed;
+            speedValue.textContent = `${speed.toFixed(1)}x`;
+        }
+
+        // Handle loop all change
+        function handleLoopAllChange() {
+            isLoopAllActive = !isLoopAllActive;
+            audioPlayer.loop = isLoopAllActive;
+            
+            if (isLoopAllActive) {
+                loopAllButton.classList.add('loop-active');
+                
+                if (isAutoLooping) {
+                    isAutoLooping = false;
+                    autoLoopButton.classList.remove('auto-loop-active');
+                }
+                
+                if (isRepeatLooping) {
+                    isRepeatLooping = false;
+                    repeatLoopButton.classList.remove('repeat-loop-active');
+                    repeatLoopSettings.classList.add('hidden');
+                    stopRepeatLoop();
+                }
+            } else {
+                loopAllButton.classList.remove('loop-active');
+            }
+        }
+        
+        // Handle auto loop change
+        function handleAutoLoopChange() {
+            isAutoLooping = !isAutoLooping;
+            
+            if (isAutoLooping) {
+                autoLoopButton.classList.add('auto-loop-active');
+                
+                if (isLoopAllActive) {
+                    isLoopAllActive = false;
+                    audioPlayer.loop = false;
+                    loopAllButton.classList.remove('loop-active');
+                }
+                
+                if (isRepeatLooping) {
+                    isRepeatLooping = false;
+                    repeatLoopButton.classList.remove('repeat-loop-active');
+                    repeatLoopSettings.classList.add('hidden');
+                    stopRepeatLoop();
+                }
+                
+                if (currentSubtitleIndex !== -1) {
+                    setLoopToSubtitle(currentSubtitleIndex);
+                }
+            } else {
+                autoLoopButton.classList.remove('auto-loop-active');
+            }
+        }
+
+        // Set custom loop with improved precision
+        function setCustomLoop() {
+            const startTimeStr = loopStartInput.value;
+            const endTimeStr = loopEndInput.value;
+            
+            try {
+                loopStartTime = convertInputTimeToSeconds(startTimeStr);
+                loopEndTime = convertInputTimeToSeconds(endTimeStr);
+                
+                if (loopStartTime >= loopEndTime) {
+                    throw new Error('Start time must be before end time');
+                }
+                
+                isLooping = true;
+                currentLoopDiv.classList.remove('hidden');
+                loopInfoSpan.textContent = `${startTimeStr} - ${endTimeStr}`;
+                
+                if (audioPlayer.currentTime < loopStartTime || audioPlayer.currentTime > loopEndTime) {
+                    if (!seekInProgress) {
+                        seekInProgress = true;
+                        
+                        audioPlayer.currentTime = loopStartTime;
+                        
+                        if (!audioPlayer.paused) {
+                            setTimeout(() => {
+                                seekInProgress = false;
+                            }, 100);
+                        } else {
+                            audioPlayer.play().catch(e => {
+                                console.error("Error playing audio:", e);
+                            }).finally(() => {
+                                setTimeout(() => {
+                                    seekInProgress = false;
+                                }, 100);
+                            });
+                        }
+                    }
+                }
+            } catch (error) {
+                alert('Vui lòng nhập thời gian hợp lệ theo định dạng HH:MM:SS,mmm.');
+                console.error(error);
+            }
+        }
+
+        // Clear custom loop
+        function clearCustomLoop() {
+            isLooping = false;
+            loopStartTime = 0;
+            loopEndTime = 0;
+            loopStartInput.value = '';
+            loopEndInput.value = '';
+            currentLoopDiv.classList.add('hidden');
+        }
+
+        // Convert input time to seconds with high precision
+        function convertInputTimeToSeconds(timeStr) {
+            if (!timeStr) return 0;
+            
+            const match = timeStr.match(/^(\d{2}):(\d{2}):(\d{2}),(\d{3})$/);
+            if (match) {
+                const hours = parseInt(match[1]);
+                const minutes = parseInt(match[2]);
+                const seconds = parseInt(match[3]);
+                const milliseconds = parseInt(match[4]);
+                return hours * 3600 + minutes * 60 + seconds + milliseconds / 1000;
+            }
+            
+            throw new Error('Invalid time format. Please use HH:MM:SS,mmm format.');
+        }
+
+        // Handle time update event
+        function handleTimeUpdate() {
+            if (!requestHighPrecision) {
+                handlePreciseTimeUpdate();
+            }
+            
+            const now = performance.now();
+            const timeSinceLastUpdate = now - lastTimeUpdateTime;
+            lastTimeUpdateTime = now;
+            
+            if (timeSinceLastUpdate > 100) {
+                handlePreciseTimeUpdate();
+            }
+        }
+
+        // Handle audio play event
+        function handleAudioPlay() {
+            isPlaying = true;
+            
+            if (!timerInterval) {
+                sessionStartTime = Date.now() - (learningTime * 1000);
+                timerInterval = setInterval(updateLearningTime, 1000);
+            }
+            
+            setupHighPrecisionTimeTracking();
+        }
+
+        // Handle audio pause event
+        function handleAudioPause() {
+            isPlaying = false;
+            
+            clearInterval(timerInterval);
+            timerInterval = null;
+            
+            if (timeUpdatePrecisionIntervalId) {
+                clearInterval(timeUpdatePrecisionIntervalId);
+                timeUpdatePrecisionIntervalId = null;
+            }
+        }
+
+        // Handle audio ended event
+        function handleAudioEnded() {
+            if (!isLoopAllActive && !isLooping) {
+                isPlaying = false;
+                clearInterval(timerInterval);
+                timerInterval = null;
+                
+                if (timeUpdatePrecisionIntervalId) {
+                    clearInterval(timeUpdatePrecisionIntervalId);
+                    timeUpdatePrecisionIntervalId = null;
+                }
+                
+                if (isRepeatLoopRunning) {
+                    repeatStatus.textContent = 'Hoàn thành tất cả câu!';
+                    
+                    setTimeout(() => {
+                        if (isRepeatLoopRunning) {
+                            isRepeatLooping = false;
+                            repeatLoopButton.classList.remove('repeat-loop-active');
+                            repeatLoopSettings.classList.add('hidden');
+                            stopRepeatLoop();
+                        }
+                    }, 2000);
+                }
+            }
+        }
+
+        // Update learning time
+        function updateLearningTime() {
+            if (isPlaying) {
+                const currentTime = Date.now();
+                learningTime = (currentTime - sessionStartTime) / 1000;
+                totalLearningTime += 1;
+                
+                updateSessionTimeDisplay();
+                updateTotalTimeDisplay();
+                
+                localStorage.setItem('totalLearningTime', totalLearningTime.toString());
+            }
+        }
+
+        // Update session time display
+        function updateSessionTimeDisplay() {
+            currentSessionTimeSpan.textContent = formatTimerDisplay(learningTime);
+        }
+
+        // Update total time display with adaptive formatting
+        function updateTotalTimeDisplay() {
+            totalTimeSpan.textContent = formatAdaptiveTimerDisplay(totalLearningTime);
+        }
+
+        // Format timer display with adaptive hours digits
+        function formatAdaptiveTimerDisplay(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            seconds %= 3600;
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            let hoursStr;
+            if (hours < 10) {
+                hoursStr = String(hours).padStart(2, '0');
+            } else if (hours < 100) {
+                hoursStr = String(hours).padStart(2, '0');
+            } else if (hours < 1000) {
+                hoursStr = String(hours).padStart(3, '0');
+            } else {
+                hoursStr = String(hours).padStart(4, '0');
+            }
+            
+            return `${hoursStr}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // Format regular timer display for session time
+        function formatTimerDisplay(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            seconds %= 3600;
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // Save stats to localStorage
+        function saveStats() {
+            localStorage.setItem('totalLearningTime', totalLearningTime.toString());
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
